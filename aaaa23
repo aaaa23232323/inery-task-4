@@ -1,1 +1,112 @@
 
+PRIVATE_KEY='INERY_PRIVATE_KEY'
+INERY_ACCOUNT='INERY_ACCOUNT'
+
+
+{
+    "name": "aaaa23-rpc-transaction",
+    "version": "1.0.0",
+    "description": "A sample rpc transaction for inery blockchain",
+    "main": "./solution.mjs",
+    "scripts": {
+      "solution": "node ./solution.mjs"
+    },
+    "author": "aaaa23",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/aaaa23232323/inery-testnet-faucet-tasks"
+    },
+    "homepage": "https://github.com/aaaa23232323/inery-testnet-faucet-tasks",
+    "dependencies": {
+      "ineryjs": "github:inery-blockchain/ineryjs",
+      "dotenv": "^16.0.3"
+    }
+}
+
+
+
+
+### Prerequisite
+
+- [NodeJS](https://nodejs.org/en/)
+
+- NPM
+
+
+
+### How to run
+
+Change directory to ```aaaa23```
+
+```shell
+cd ./aaaa23
+```
+
+Create .env and edit the variable
+PRIVATE_KEY=YOUR PRIVATE KEY
+INERY_ACCOUNT=YOUR INERY ACCOUNT
+
+```shell
+nano .env
+```
+
+Install dependencies
+
+```shell
+npm install
+```
+
+Run the script
+
+```
+npm run solution
+```
+
+
+const { Api, JsonRpc, RpcError, JsSignatureProvider } = require('eosjs');
+require('dotenv').config();
+
+const url = process.env.NODE_URL;
+const jsonRpc = new JsonRpc(url);
+const privateKey = process.env.PRIVATE_KEY;
+
+const account = process.env.INERY_ACCOUNT;
+const actor = process.env.INERY_ACCOUNT;
+const signatureProvider = new JsSignatureProvider([privateKey]);
+
+const api = new Api({
+    rpc: jsonRpc,
+    signatureProvider,
+});
+
+async function create(id, user, data) {
+    try {
+        const tx = await api.transact({
+            actions: [
+                {
+                    account,
+                    name: 'create',
+                    authorization: [
+                        {
+                            actor,
+                            permission: 'active',
+                        },
+                    ],
+                    data: {
+                        id,
+                        user,
+                        data,
+                    },
+                },
+            ],
+        }, { broadcast: true, sign: true });
+
+        console.log(tx);
+        console.log(tx.processed.action_traces[0].console);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+create(5, account, 'Create new Data via JSON RPC');
